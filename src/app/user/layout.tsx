@@ -16,20 +16,21 @@ export default async function UserLayout({ children }: { children: ReactNode }) 
   return (
     <div className="h-screen overflow-hidden bg-slate-50">
       <div className="flex h-full">
-        <div className="hidden w-64 shrink-0 md:block">
+        <div className="hidden w-64 shrink-0 xl:block">
           <UserSidebar />
         </div>
 
         <div className="flex h-full min-w-0 flex-1 flex-col overflow-hidden">
-          <div className="border-b border-slate-200 bg-white md:hidden">
-            <UserSidebar mobile />
-          </div>
           <UserHeader userName={session.userName} />
 
-          <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+          <main className="flex-1 overflow-y-auto p-4 pb-28 sm:p-6 sm:pb-32 lg:p-8 lg:pb-36 xl:pb-8">
             <div className="mx-auto w-full max-w-7xl">{children}</div>
           </main>
         </div>
+      </div>
+
+      <div className="xl:hidden">
+        <UserSidebar mobile />
       </div>
     </div>
   );

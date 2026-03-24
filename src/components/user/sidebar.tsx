@@ -19,20 +19,32 @@ export function UserSidebar({ mobile = false }: UserSidebarProps) {
 
   if (mobile) {
     return (
-      <div className="overflow-x-auto">
-        <nav className="flex min-w-max items-center gap-2 p-3">
+      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-4 sm:px-6 sm:pb-5 lg:px-8 lg:pb-6">
+        <nav className="pointer-events-auto relative flex w-full max-w-md items-end justify-between rounded-[2rem] border border-white/70 bg-white/90 px-3 pb-2 pt-5 shadow-[0_20px_45px_-24px_rgba(15,23,42,0.45)] backdrop-blur-xl">
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition ${
-                  isActive ? "bg-emerald-100 text-emerald-700" : "text-slate-600 hover:bg-slate-100"
-                }`}
+                className="group relative flex flex-1 flex-col items-center justify-end gap-1 px-2 pb-1 pt-9"
               >
-                <item.icon className="h-4 w-4" />
-                {item.label}
+                {isActive ? (
+                  <span className="absolute -top-8 flex h-14 w-14 items-center justify-center rounded-full border-4 border-slate-50 bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-[0_16px_32px_-18px_rgba(16,185,129,0.9)] transition-all duration-300 ease-out group-hover:-translate-y-1 group-active:-translate-y-1.5">
+                    <item.icon className="h-6 w-6" />
+                  </span>
+                ) : (
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full text-slate-400 transition-all duration-300 ease-out group-hover:-translate-y-1 group-hover:text-slate-600 group-active:-translate-y-1.5">
+                    <item.icon className="h-5 w-5" />
+                  </span>
+                )}
+                <span
+                  className={`mt-0.5 text-[11px] font-semibold transition ${
+                    isActive ? "text-slate-900" : "text-slate-400 group-hover:text-slate-600"
+                  }`}
+                >
+                  {item.label}
+                </span>
               </Link>
             );
           })}
