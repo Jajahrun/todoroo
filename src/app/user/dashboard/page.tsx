@@ -1,13 +1,13 @@
 import Link from "next/link";
-import { CheckCheck, Clock3, ListTodo, Plus, Timer, Zap } from "lucide-react";
+import { CheckCheck, ListTodo, Plus, Zap } from "lucide-react";
 import { PomodoroWidget } from "../../../components/user/pomodoro-widget";
 import { SummaryCard } from "../../../components/user/summary-card";
-import { mockStats } from "../../../components/user/mock-data";
 import { StreakCard } from "../../../components/user/streak-card";
 import { getCurrentUserSession } from "../../../lib/user-session";
 import { getTodayTaskSummaryByUserId, getTodayTasksPreviewByUserId } from "../../../lib/task-service";
 import { TodayTasksPreview } from "../../../components/user/today-tasks-preview";
 import { getUserStreakStateByUserId } from "../../../lib/streak-service";
+import { FocusSummaryCards } from "../../../components/user/focus-summary-cards";
 
 export default async function UserDashboardPage() {
   const session = await getCurrentUserSession();
@@ -42,18 +42,7 @@ export default async function UserDashboardPage() {
           hint="Progress hari ini"
           icon={CheckCheck}
         />
-        <SummaryCard
-          label="Sesi Fokus"
-          value={`${mockStats.focusSessions}`}
-          hint="Pomodoro aktif"
-          icon={Timer}
-        />
-        <SummaryCard
-          label="Total Waktu Fokus"
-          value={`${mockStats.focusMinutes}m`}
-          hint="Akumulasi hari ini"
-          icon={Clock3}
-        />
+        <FocusSummaryCards />
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
