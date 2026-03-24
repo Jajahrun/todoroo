@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+  name        String       @db.VarChar(100)
+  uniqueCode  String       @unique(map: "unique_code") @map("unique_code") @db.VarChar(50)
+  role        UserRole     @default(user)
+  email       String?      @db.VarChar(100)
+  isActive    Boolean      @default(true) @map("is_active")
+  lastLoginAt DateTime?    @map("last_login_at") @db.DateTime(0)
+  createdAt   DateTime?    @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt   DateTime?    @default(now()) @map("updated_at") @db.Timestamp(0)
+  tasks       Task[]
+  streak      Streak?
+  dailyStats  DailyStat[]
+  sessions    FocusSession[]
+
+  @@map("users")
+}
+
+model Task {
+  id          BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+  userId      BigInt       @map("user_id") @db.UnsignedBigInt
+  title       String       @db.VarChar(255)
+  description String?
+  priority    TaskPriority @default(medium)
+  isHabits    HabitFlag    @default(no) @map("is_habits")
+  deadline    DateTime?    @db.DateTime(0)
+  isCompleted Boolean      @default(false) @map("is_completed")
+  completedAt DateTime?    @map("completed_at") @db.DateTime(0)
+  createdAt   DateTime?    @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt   DateTime?    @default(now()) @map("updated_at") @db.Timestamp(0)
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions    FocusSession[]
+
+  @@index([userId], map: "fk_tasks_user")
+  @@map("tasks")
+}
+
+model FocusSession {
+  id              BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
+  userId          BigInt            @map("user_id") @db.UnsignedBigInt
+  taskId          BigInt?           @map("task_id") @db.UnsignedBigInt
+  sessionType     FocusSessionType  @default(focus) @map("session_type")
+  durationMinutes Int               @map("duration_minutes")
+  startedAt       DateTime?         @map("started_at") @db.DateTime(0)
+  endedAt         DateTime?         @map("ended_at") @db.DateTime(0)
+  status          FocusSessionStatus @default(completed)
+  createdAt       DateTime?         @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt       DateTime?         @default(now()) @map("updated_at") @db.Timestamp(0)
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  task            Task?             @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  @@index([taskId], map: "fk_focus_sessions_task")
+  @@index([userId], map: "fk_focus_sessions_user")
+  @@map("focus_sessions")
+}
+
+model DailyStat {
+  id                  BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  userId              BigInt    @map("user_id") @db.UnsignedBigInt
+  statDate            DateTime  @map("stat_date") @db.Date
+  totalTasks          Int       @default(0) @map("total_tasks")
+  totalTasksCompleted Int       @default(0) @map("total_tasks_completed")
+  totalSessions       Int       @default(0) @map("total_sessions")
+  totalFocusMinutes   Int       @default(0) @map("total_focus_minutes")
+  createdAt           DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt           DateTime? @default(now()) @map("updated_at") @db.Timestamp(0)
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, statDate], map: "uniq_user_date")
+  @@index([userId], map: "fk_daily_stats_user")
+  @@map("daily_stats")
+}
+
+model Streak {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  userId         BigInt    @unique(map: "user_id") @map("user_id") @db.UnsignedBigInt
+  currentStreak  Int       @default(0) @map("current_streak")
+  longestStreak  Int       @default(0) @map("longest_streak")
+  lastActiveDate DateTime? @map("last_active_date") @db.Date
+  createdAt      DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt      DateTime? @default(now()) @map("updated_at") @db.Timestamp(0)
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("streaks")
+}
+
+enum UserRole {
+  admin
+  user
+}
+
+enum TaskPriority {
+  high
+  medium
+  low
+}
+
+enum HabitFlag {
+  yes
+  no
+}
+
+enum FocusSessionType {
+  focus
+  short_break
+  long_break
+}
+
+enum FocusSessionStatus {
+  in_progress
+  completed
+  cancelled
+}

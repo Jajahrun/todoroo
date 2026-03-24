@@ -1,0 +1,76 @@
+CREATE TABLE users (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  unique_code VARCHAR(50) NOT NULL UNIQUE,
+  role ENUM('admin','user') NOT NULL DEFAULT 'user',
+  email VARCHAR(100) NULL,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  last_login_at DATETIME NULL,
+  created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE streaks (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT UNSIGNED NOT NULL UNIQUE,
+  current_streak INT NOT NULL DEFAULT 0,
+  longest_streak INT NOT NULL DEFAULT 0,
+  last_active_date DATE NULL,
+  created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_streaks_user
+    FOREIGN KEY (user_id) REFERENCES users(id)
+    ON DELETE CASCADE
+);
+
+CREATE TABLE tasks (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT UNSIGNED NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  description TEXT NULL,
+  priority ENUM('high','medium','low') NOT NULL DEFAULT 'medium',
+  deadline DATETIME NULL,
+  is_completed TINYINT(1) NOT NULL DEFAULT 0,
+  completed_at DATETIME NULL,
+  created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_tasks_user
+    FOREIGN KEY (user_id) REFERENCES users(id)
+    ON DELETE CASCADE
+);
+
+
+CREATE TABLE daily_stats (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT UNSIGNED NOT NULL,
+  stat_date DATE NOT NULL,
+  total_tasks INT NOT NULL DEFAULT 0,
+  total_tasks_completed INT NOT NULL DEFAULT 0,
+  total_sessions INT NOT NULL DEFAULT 0,
+  total_focus_minutes INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uniq_user_date (user_id, stat_date),
+  CONSTRAINT fk_daily_stats_user
+    FOREIGN KEY (user_id) REFERENCES users(id)
+    ON DELETE CASCADE
+);
+
+CREATE TABLE focus_sessions (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT UNSIGNED NOT NULL,
+  task_id BIGINT UNSIGNED NULL,
+  session_type ENUM('focus','short_break','long_break') NOT NULL DEFAULT 'focus',
+  duration_minutes INT NOT NULL,
+  started_at DATETIME NULL,
+  ended_at DATETIME NULL,
+  status ENUM('in_progress','completed','cancelled') NOT NULL DEFAULT 'completed',
+  created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_focus_sessions_user
+    FOREIGN KEY (user_id) REFERENCES users(id)
+    ON DELETE CASCADE,
+  CONSTRAINT fk_focus_sessions_task
+    FOREIGN KEY (task_id) REFERENCES tasks(id)
+    ON DELETE SET NULL
+);
