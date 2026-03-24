@@ -7,18 +7,25 @@ import { StreakCard } from "../../../components/user/streak-card";
 import { getCurrentUserSession } from "../../../lib/user-session";
 import { getTodayTaskSummaryByUserId, getTodayTasksPreviewByUserId } from "../../../lib/task-service";
 import { TodayTasksPreview } from "../../../components/user/today-tasks-preview";
+import { getUserStreakStateByUserId } from "../../../lib/streak-service";
 
 export default async function UserDashboardPage() {
   const session = await getCurrentUserSession();
   const userId = session?.userId ?? 0;
 
-  const [todayTaskPreview, habitsPreview, taskSummary] = userId
+  const [todayTaskPreview, habitsPreview, taskSummary, streak] = userId
     ? await Promise.all([
         getTodayTasksPreviewByUserId(userId, "task", 5),
         getTodayTasksPreviewByUserId(userId, "habits", 5),
         getTodayTaskSummaryByUserId(userId),
+        getUserStreakStateByUserId(userId),
       ])
-    : [[], [], { totalTasksToday: 0, completedTasksToday: 0 }];
+    : [
+        [],
+        [],
+        { totalTasksToday: 0, completedTasksToday: 0 },
+        { currentStreak: 1, longestStreak: 1, isActiveToday: true },
+      ];
 
   return (
     <div className="space-y-6">
@@ -56,7 +63,11 @@ export default async function UserDashboardPage() {
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[1fr,0.9fr]">
-        <StreakCard currentStreak={mockStats.currentStreak} />
+        <StreakCard
+          currentStreak={streak.currentStreak}
+          longestStreak={streak.longestStreak}
+          isActiveToday={streak.isActiveToday}
+        />
 
         <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <h3 className="text-lg font-semibold text-slate-800">Quick Actions</h3>

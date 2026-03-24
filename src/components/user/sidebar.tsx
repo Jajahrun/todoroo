@@ -42,7 +42,7 @@ export function UserSidebar({ mobile = false }: UserSidebarProps) {
   }
 
   return (
-    <aside className="flex h-screen flex-col border-r border-slate-200 bg-white p-5">
+    <aside className="sticky top-0 flex h-screen flex-col border-r border-slate-200 bg-white p-5">
       <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 px-4 py-3">
         <p className="text-lg font-semibold text-slate-800">Todoro</p>
         <p className="text-xs text-slate-500">Daily Productivity Planner</p>

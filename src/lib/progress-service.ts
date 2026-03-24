@@ -1,4 +1,5 @@
 import { prisma } from "./prisma";
+import { getUserStreakStateByUserId } from "./streak-service";
 
 type WeeklySummaryRow = {
   tasksCompletedWeek: bigint | number | null;
@@ -12,11 +13,6 @@ type DailyStatRow = {
   total_tasks_completed: bigint | number;
   total_sessions: bigint | number;
   total_focus_minutes: bigint | number;
-};
-
-type StreakRow = {
-  current_streak: bigint | number | null;
-  longest_streak: bigint | number | null;
 };
 
 type TaskAggRow = {
@@ -36,6 +32,7 @@ export type ProgressSummary = {
   focusMinutesWeek: number;
   currentStreak: number;
   longestStreak: number;
+  isActiveToday: boolean;
 };
 
 export type ProgressActivityItem = {
@@ -142,21 +139,15 @@ export async function getProgressSummaryByUserId(userId: number): Promise<Progre
     }
   }
 
-  const streakRows = await prisma.$queryRaw<StreakRow[]>`
-    SELECT current_streak, longest_streak
-    FROM streaks
-    WHERE user_id = ${userId}
-    LIMIT 1
-  `;
-
-  const streak = streakRows[0];
+  const streak = await getUserStreakStateByUserId(userId);
 
   return {
     tasksCompletedWeek,
     focusSessionsWeek,
     focusMinutesWeek,
-    currentStreak: toNumber(streak?.current_streak),
-    longestStreak: toNumber(streak?.longest_streak),
+    currentStreak: streak.currentStreak,
+    longestStreak: streak.longestStreak,
+    isActiveToday: streak.isActiveToday,
   };
 }
 

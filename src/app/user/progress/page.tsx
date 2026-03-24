@@ -15,8 +15,9 @@ export default async function UserProgressPage() {
           tasksCompletedWeek: 0,
           focusSessionsWeek: 0,
           focusMinutesWeek: 0,
-          currentStreak: 0,
-          longestStreak: 0,
+          currentStreak: 1,
+          longestStreak: 1,
+          isActiveToday: true,
         },
         [],
       ];
@@ -88,7 +89,11 @@ export default async function UserProgressPage() {
         </div>
       </section>
 
-      <StreakCard currentStreak={summary.currentStreak} longestStreak={summary.longestStreak} />
+      <StreakCard
+        currentStreak={summary.currentStreak}
+        longestStreak={summary.longestStreak}
+        isActiveToday={summary.isActiveToday}
+      />
     </div>
   );
 }

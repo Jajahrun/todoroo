@@ -1,5 +1,6 @@
 import { prisma } from "./prisma";
 import { HabitFlag, TaskPriority, UserTask } from "../components/user/types";
+import { syncUserStreakAfterTaskChange } from "./streak-service";
 
 type TaskRow = {
   id: bigint | number;
@@ -257,6 +258,8 @@ export async function toggleTaskCompletionForUser(input: {
           updated_at = NOW()
       `;
     }
+
+    await syncUserStreakAfterTaskChange(input.userId, tx);
   });
 }
 
